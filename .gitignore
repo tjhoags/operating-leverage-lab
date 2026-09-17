@@ -1,0 +1,41 @@
+# Local credentials and machine-specific configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.claude/settings.local.json
+.Codex.local.md
+
+# Private source material and local working records
+private/
+private-evidence/
+evidence/private/
+.local/
+downloads/
+exports/
+*.local.json
+*.local.md
+
+# Dependency, build and tool output
+node_modules/
+dist/
+build/
+coverage/
+test-results/
+playwright-report/
+.cache/
+.venv/
+__pycache__/
+*.pyc
+*.log
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
