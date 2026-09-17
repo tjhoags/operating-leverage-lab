@@ -1,0 +1,484 @@
+{
+  "fixture_format_version": "1.0.0",
+  "title": "Operating Leverage Lab deterministic acceptance fixtures",
+  "synthetic": true,
+  "implementation_schema_required": false,
+  "mapping_note": "These cases describe economic facts and expected results. Map them to the application schema without changing their meanings or expected arithmetic.",
+  "number_encoding": "Decimal quantities are base-10 strings. Counts and whole-month indices are integers. Null means not supplied, undefined or no payback as identified by the accompanying field; null does not mean zero.",
+  "conventions": {
+    "currency": "USD",
+    "period": "month",
+    "year_months": 12,
+    "setup_timing": "time_zero",
+    "time_input_unit": "minutes_per_accepted_completion",
+    "hours_conversion": "divide_minutes_by_60",
+    "payback_whole_month": "first_month_with_nonnegative_cumulative_cash_benefit_after_setup",
+    "fractional_payback": "uniform_cash_flow_within_the_crossover_month",
+    "cash_claim_status": "modeled_from_synthetic_assumptions_not_observed_realized_savings",
+    "fixed_payroll": "unchanged_unless_an_explicit_cash_reduction_mechanism_is_supplied",
+    "future_hiring": "separate_hypothetical_counterfactual_with_explicit_start_month",
+    "setup_cost": "count_once_in_cash_flow_do_not_also_charge_amortization_in_the_same_view",
+    "capacity_value": "separate_planning_metric_not_added_to_cash_savings",
+    "unknown_time_or_cost": "retain_unknown_do_not_impute_zero",
+    "full_precision": "retain_unrounded_values_in_calculation_round_only_for_presentation"
+  },
+  "tolerances": {
+    "money_absolute": "0.01",
+    "hours_absolute": "0.000001",
+    "fractional_months_absolute": "0.000001",
+    "whole_month_payback": "exact"
+  },
+  "cases": [
+    {
+      "id": "fixed-payroll-capacity-only",
+      "title": "Fixed payroll can free capacity while increasing cash expense",
+      "inputs": {
+        "accepted_completions_per_month": 1000,
+        "baseline_human_minutes_per_completion": "12.00",
+        "post_change_human_minutes_per_completion": "6.00",
+        "baseline_fixed_payroll_per_month": "10000.00",
+        "post_change_fixed_payroll_per_month": "10000.00",
+        "cash_reducing_hours_per_month": "0.00",
+        "incremental_variable_cost_per_completion": "0.20",
+        "incremental_fixed_cost_per_month": "300.00",
+        "setup_cost_at_month_zero": "1200.00",
+        "optional_capacity_valuation_per_hour": "50.00",
+        "adoption_fraction": "1.00",
+        "avoided_hiring_plan": null
+      },
+      "expected": {
+        "baseline_human_hours_per_month": "200.00",
+        "post_change_human_hours_per_month": "100.00",
+        "hours_freed_per_month": "100.00",
+        "gross_cash_expense_removed_per_month": "0.00",
+        "optional_capacity_value_per_month": "5000.00",
+        "baseline_ongoing_cash_cost_per_month": "10000.00",
+        "post_change_ongoing_cash_cost_per_month": "10500.00",
+        "baseline_cost_per_accepted_completion": "10.00",
+        "post_change_cost_per_accepted_completion": "10.50",
+        "net_current_baseline_cash_benefit_per_month": "-500.00",
+        "year_one_cumulative_current_baseline_cash_benefit": "-7200.00",
+        "payback_month": null,
+        "payback_status": "no_payback_under_assumptions"
+      },
+      "checks": [
+        "Capacity value is excluded from cash benefit and payback.",
+        "No avoided hire is inferred from freed hours."
+      ]
+    },
+    {
+      "id": "fully-reducible-contractors",
+      "title": "Explicitly removable contractor billing supports cash savings",
+      "inputs": {
+        "accepted_completions_per_month": 1000,
+        "baseline_human_minutes_per_completion": "12.00",
+        "post_change_human_minutes_per_completion": "6.00",
+        "labor_arrangement": "contractor_hours_fully_reducible",
+        "baseline_billed_hours_per_month": "200.00",
+        "post_change_billed_hours_per_month": "100.00",
+        "contractor_cash_cost_per_hour": "40.00",
+        "incremental_variable_cost_per_completion": "0.20",
+        "incremental_fixed_cost_per_month": "300.00",
+        "setup_cost_at_month_zero": "7000.00",
+        "adoption_fraction": "1.00"
+      },
+      "expected": {
+        "hours_freed_per_month": "100.00",
+        "cash_reducing_hours_per_month": "100.00",
+        "gross_cash_expense_removed_per_month": "4000.00",
+        "baseline_ongoing_cash_cost_per_month": "8000.00",
+        "post_change_ongoing_cash_cost_per_month": "4500.00",
+        "baseline_cost_per_accepted_completion": "8.00",
+        "post_change_cost_per_accepted_completion": "4.50",
+        "net_current_baseline_cash_benefit_per_month": "3500.00",
+        "cumulative_current_baseline_cash_benefit_by_month": [
+          "-3500.00",
+          "0.00",
+          "3500.00"
+        ],
+        "payback_month": 2,
+        "fractional_payback_months": "2.000000",
+        "year_one_cumulative_current_baseline_cash_benefit": "35000.00"
+      },
+      "checks": [
+        "The same removed contractor hours cannot also be added as a separate monetized capacity benefit."
+      ]
+    },
+    {
+      "id": "partial-billing-reduction",
+      "title": "Freed hours and bill reduction need not be equal",
+      "inputs": {
+        "accepted_completions_per_month": 1000,
+        "baseline_human_minutes_per_completion": "12.00",
+        "post_change_human_minutes_per_completion": "6.00",
+        "baseline_billed_hours_per_month": "200.00",
+        "post_change_billed_hours_per_month": "175.00",
+        "contractor_cash_cost_per_hour": "40.00",
+        "billing_reason": "Retained-capacity terms allow only 25 hours of the 100 freed hours to reduce the bill.",
+        "incremental_variable_cost_per_completion": "0.20",
+        "incremental_fixed_cost_per_month": "300.00",
+        "setup_cost_at_month_zero": "1000.00",
+        "adoption_fraction": "1.00"
+      },
+      "expected": {
+        "hours_freed_per_month": "100.00",
+        "cash_reducing_hours_per_month": "25.00",
+        "additional_retained_capacity_hours_per_month": "75.00",
+        "gross_cash_expense_removed_per_month": "1000.00",
+        "baseline_ongoing_cash_cost_per_month": "8000.00",
+        "post_change_ongoing_cash_cost_per_month": "7500.00",
+        "post_change_cost_per_accepted_completion": "7.50",
+        "net_current_baseline_cash_benefit_per_month": "500.00",
+        "payback_month": 2,
+        "fractional_payback_months": "2.000000",
+        "year_one_cumulative_current_baseline_cash_benefit": "5000.00"
+      },
+      "checks": [
+        "Physical task time and payable retained-capacity time remain distinct.",
+        "Any optional valuation of the remaining 75 hours is excluded from cash payback."
+      ]
+    },
+    {
+      "id": "adoption-ramp",
+      "title": "Ramp delays cash recovery while fixed subscription starts immediately",
+      "inputs": {
+        "accepted_completions_per_month": 1000,
+        "baseline_human_minutes_per_completion": "12.00",
+        "full_adoption_human_minutes_per_completion": "6.00",
+        "baseline_billed_hours_per_month": "200.00",
+        "contractor_cash_cost_per_hour": "40.00",
+        "full_adoption_incremental_variable_cost_per_month": "200.00",
+        "incremental_fixed_cost_per_month": "300.00",
+        "setup_cost_at_month_zero": "7000.00",
+        "adoption_fractions_by_month": [
+          "0.25",
+          "0.50",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00",
+          "1.00"
+        ],
+        "adoption_applies_to": [
+          "freed_hours",
+          "cash_reducing_hours",
+          "incremental_variable_cost"
+        ],
+        "fixed_subscription_prorated_by_adoption": false
+      },
+      "expected": {
+        "monthly_rows": [
+          {
+            "month": 1,
+            "hours_freed": "25.00",
+            "gross_cash_expense_removed": "1000.00",
+            "variable_cost": "50.00",
+            "fixed_cost": "300.00",
+            "net_cash_benefit": "650.00",
+            "cumulative_cash_benefit": "-6350.00"
+          },
+          {
+            "month": 2,
+            "hours_freed": "50.00",
+            "gross_cash_expense_removed": "2000.00",
+            "variable_cost": "100.00",
+            "fixed_cost": "300.00",
+            "net_cash_benefit": "1600.00",
+            "cumulative_cash_benefit": "-4750.00"
+          },
+          {
+            "month": 3,
+            "hours_freed": "100.00",
+            "gross_cash_expense_removed": "4000.00",
+            "variable_cost": "200.00",
+            "fixed_cost": "300.00",
+            "net_cash_benefit": "3500.00",
+            "cumulative_cash_benefit": "-1250.00"
+          },
+          {
+            "month": 4,
+            "hours_freed": "100.00",
+            "gross_cash_expense_removed": "4000.00",
+            "variable_cost": "200.00",
+            "fixed_cost": "300.00",
+            "net_cash_benefit": "3500.00",
+            "cumulative_cash_benefit": "2250.00"
+          }
+        ],
+        "payback_month": 4,
+        "fractional_payback_months": "3.357142857143",
+        "fractional_payback_expression": "3 + 1250 / 3500",
+        "year_one_cumulative_current_baseline_cash_benefit": "30250.00",
+        "year_one_hours_freed": "1075.00"
+      },
+      "checks": [
+        "Do not compute payback from full-adoption monthly savings while ignoring the ramp."
+      ]
+    },
+    {
+      "id": "hypothetical-future-hiring",
+      "title": "A planned future hire is a separate counterfactual, not current cash savings",
+      "inputs": {
+        "accepted_completions_per_month": 1000,
+        "baseline_human_minutes_per_completion": "12.00",
+        "post_change_human_minutes_per_completion": "6.00",
+        "baseline_fixed_payroll_per_month": "10000.00",
+        "post_change_fixed_payroll_per_month": "10000.00",
+        "cash_reducing_hours_per_month": "0.00",
+        "incremental_variable_cost_per_completion": "0.20",
+        "incremental_fixed_cost_per_month": "300.00",
+        "setup_cost_at_month_zero": "1200.00",
+        "adoption_fraction": "1.00",
+        "hiring_plan": {
+          "status": "hypothetical_entered_plan_not_incurred_or_cancelled",
+          "starting_month": 4,
+          "planned_contractor_hours_per_month": "80.00",
+          "planned_contractor_cost_per_hour": "40.00",
+          "freed_capacity_allocated_to_plan_hours_per_month": "80.00",
+          "counterfactual_assumption": "The freed capacity can absorb this separate growth workload.",
+          "future_completed_task_volume": null
+        }
+      },
+      "expected": {
+        "current_baseline_ledger": {
+          "hours_freed_per_month": "100.00",
+          "gross_cash_expense_removed_per_month": "0.00",
+          "net_cash_benefit_per_month": "-500.00",
+          "year_one_cumulative_cash_benefit": "-7200.00",
+          "payback_month": null,
+          "payback_status": "no_payback_under_current_baseline"
+        },
+        "hypothetical_hiring_plan_comparison": {
+          "avoided_future_expense_by_month": [
+            "0.00",
+            "0.00",
+            "0.00",
+            "3200.00",
+            "3200.00",
+            "3200.00",
+            "3200.00",
+            "3200.00",
+            "3200.00",
+            "3200.00",
+            "3200.00",
+            "3200.00"
+          ],
+          "year_one_potential_avoided_future_expense": "28800.00",
+          "year_one_net_benefit_against_stated_hiring_plan": "21600.00",
+          "capacity_allocated_to_future_plan_hours_per_month": "80.00",
+          "remaining_unallocated_capacity_hours_per_month": "20.00",
+          "realized_savings_claim_permitted": false
+        },
+        "baseline_cost_per_accepted_completion": "10.00",
+        "post_change_current_workload_cost_per_accepted_completion": "10.50"
+      },
+      "checks": [
+        "Do not merge the future-plan comparison into the current-cash ledger.",
+        "Do not count the same 80 hours as another distinct benefit.",
+        "Do not add hypothetical future completions to the cost-per-task denominator."
+      ]
+    },
+    {
+      "id": "no-payback",
+      "title": "Zero and negative returns remain explicit, without invalid division",
+      "variants": [
+        {
+          "id": "zero-monthly-benefit",
+          "inputs": {
+            "accepted_completions_per_month": 1000,
+            "baseline_human_minutes_per_completion": "12.00",
+            "post_change_human_minutes_per_completion": "11.25",
+            "contractor_cash_cost_per_hour": "40.00",
+            "labor_arrangement": "contractor_hours_fully_reducible",
+            "incremental_total_recurring_cost_per_month": "500.00",
+            "setup_cost_at_month_zero": "1000.00"
+          },
+          "expected": {
+            "baseline_human_hours_per_month": "200.00",
+            "post_change_human_hours_per_month": "187.50",
+            "hours_freed_per_month": "12.50",
+            "gross_cash_expense_removed_per_month": "500.00",
+            "post_change_ongoing_cash_cost_per_month": "8000.00",
+            "post_change_cost_per_accepted_completion": "8.00",
+            "net_cash_benefit_per_month": "0.00",
+            "year_one_cumulative_cash_benefit": "-1000.00",
+            "cumulative_balance_at_every_modeled_month": "-1000.00",
+            "payback_month": null,
+            "payback_status": "no_payback_zero_net_benefit"
+          }
+        },
+        {
+          "id": "additional-human-work",
+          "inputs": {
+            "accepted_completions_per_month": 1000,
+            "baseline_human_minutes_per_completion": "12.00",
+            "post_change_human_minutes_per_completion": "15.00",
+            "contractor_cash_cost_per_hour": "40.00",
+            "labor_arrangement": "contractor_billing_follows_actual_hours",
+            "incremental_total_recurring_cost_per_month": "500.00",
+            "setup_cost_at_month_zero": "1000.00"
+          },
+          "expected": {
+            "baseline_human_hours_per_month": "200.00",
+            "post_change_human_hours_per_month": "250.00",
+            "hours_freed_per_month": "-50.00",
+            "additional_hours_per_month": "50.00",
+            "post_change_ongoing_cash_cost_per_month": "10500.00",
+            "post_change_cost_per_accepted_completion": "10.50",
+            "net_cash_benefit_per_month": "-2500.00",
+            "year_one_cumulative_cash_benefit": "-31000.00",
+            "payback_month": null,
+            "payback_status": "no_payback_negative_net_benefit"
+          }
+        }
+      ],
+      "checks": [
+        "No-payback must not render as zero months, infinity or NaN.",
+        "Additional human work and its costs must not be clipped away."
+      ]
+    },
+    {
+      "id": "accepted-completions-denominator",
+      "title": "Cost per completed task includes failed attempts and uses accepted output",
+      "inputs": {
+        "baseline_accepted_completions_per_month": 800,
+        "baseline_total_ongoing_cash_cost_per_month": "8000.00",
+        "post_change_attempts_per_month": 1000,
+        "post_change_accepted_completions_per_month": 800,
+        "post_change_total_ongoing_cash_cost_per_month": "9200.00",
+        "post_change_cost_includes": [
+          "failed_attempts",
+          "retries",
+          "human_review"
+        ],
+        "same_acceptance_standard": true,
+        "human_hours": null
+      },
+      "expected": {
+        "completion_fraction": "0.80",
+        "completion_percent": "80.00",
+        "baseline_cost_per_accepted_completion": "10.00",
+        "post_change_cost_per_accepted_completion": "11.50",
+        "cost_per_completed_task_increase_percent": "15.00",
+        "post_change_cost_per_attempt": "9.20",
+        "net_cash_benefit_per_month": "-1200.00",
+        "hours_freed": null
+      },
+      "checks": [
+        "Do not label $9.20 as cost per completed task.",
+        "Do not infer time savings from attempt volume.",
+        "Do not add failure/review costs a second time when included in total cost."
+      ]
+    },
+    {
+      "id": "sensitivity-grid",
+      "title": "Residual human effort and variable price are recalculated consistently",
+      "shared_inputs": {
+        "accepted_completions_per_month": 1000,
+        "baseline_human_minutes_per_completion": "12.00",
+        "contractor_cash_cost_per_hour": "40.00",
+        "labor_arrangement": "contractor_hours_fully_reducible",
+        "incremental_fixed_cost_per_month": "300.00",
+        "setup_cost_at_month_zero": "7000.00",
+        "adoption_fraction": "1.00"
+      },
+      "expected_rows": [
+        {
+          "post_change_human_minutes_per_completion": "6.00",
+          "incremental_variable_cost_per_completion": "0.20",
+          "hours_freed_per_month": "100.00",
+          "net_cash_benefit_per_month": "3500.00",
+          "fractional_payback_months": "2.000000"
+        },
+        {
+          "post_change_human_minutes_per_completion": "6.00",
+          "incremental_variable_cost_per_completion": "0.40",
+          "hours_freed_per_month": "100.00",
+          "net_cash_benefit_per_month": "3300.00",
+          "fractional_payback_months": "2.121212"
+        },
+        {
+          "post_change_human_minutes_per_completion": "6.00",
+          "incremental_variable_cost_per_completion": "0.80",
+          "hours_freed_per_month": "100.00",
+          "net_cash_benefit_per_month": "2900.00",
+          "fractional_payback_months": "2.413793"
+        },
+        {
+          "post_change_human_minutes_per_completion": "9.00",
+          "incremental_variable_cost_per_completion": "0.20",
+          "hours_freed_per_month": "50.00",
+          "net_cash_benefit_per_month": "1500.00",
+          "fractional_payback_months": "4.666667"
+        },
+        {
+          "post_change_human_minutes_per_completion": "9.00",
+          "incremental_variable_cost_per_completion": "0.40",
+          "hours_freed_per_month": "50.00",
+          "net_cash_benefit_per_month": "1300.00",
+          "fractional_payback_months": "5.384615"
+        },
+        {
+          "post_change_human_minutes_per_completion": "9.00",
+          "incremental_variable_cost_per_completion": "0.80",
+          "hours_freed_per_month": "50.00",
+          "net_cash_benefit_per_month": "900.00",
+          "fractional_payback_months": "7.777778"
+        }
+      ],
+      "checks": [
+        "Higher residual human effort cannot improve benefit when other inputs are unchanged.",
+        "Higher variable price cannot improve benefit when other inputs are unchanged.",
+        "The selected grid cell must agree with the main scenario.",
+        "A sensitivity range is not a statistical confidence interval."
+      ]
+    }
+  ],
+  "boundary_requirements": [
+    {
+      "condition": "zero_accepted_completions",
+      "expected": "undefined_cost_per_completion_with_explanation_not_zero_or_crash"
+    },
+    {
+      "condition": "missing_required_number",
+      "expected": "validation_error_not_silent_zero"
+    },
+    {
+      "condition": "non_finite_or_negative_volume_or_rate",
+      "expected": "validation_error"
+    },
+    {
+      "condition": "adoption_fraction_outside_zero_to_one",
+      "expected": "validation_error"
+    },
+    {
+      "condition": "accepted_completions_exceed_attempts",
+      "expected": "validation_error"
+    },
+    {
+      "condition": "cash_reducing_hours_exceed_corresponding_positive_freed_hours",
+      "expected": "validation_error"
+    },
+    {
+      "condition": "zero_setup_cost",
+      "expected": "valid_no_initial_cost_to_recover_without_implying_positive_ongoing_return"
+    },
+    {
+      "condition": "percentage_of_assets",
+      "inputs": {
+        "assets": "50000000.00",
+        "percentage": "1.10"
+      },
+      "expected_amount": "550000.00"
+    },
+    {
+      "condition": "invalid_import",
+      "expected": "reject_before_replacing_valid_existing_scenario"
+    }
+  ]
+}
