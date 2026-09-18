@@ -4,7 +4,9 @@ A browser-only calculator for one question about an automation: **what changes i
 
 Everything runs in the browser. There is no backend, no account, no analytics, no remote font or API call. Scenarios live in your browser's local storage and in files you download.
 
-**Status:** implemented and tested v1. The verified scope is listed under [What was verified](#what-was-verified). Public hosting via GitHub Pages is prepared but has to be enabled in the repository settings.
+**[Open the live calculator](https://tjhoags.github.io/operating-leverage-lab/)** · [Version 1.0 release](https://github.com/tjhoags/operating-leverage-lab/releases/tag/v1.0.0)
+
+The verified scope is listed under [What was verified](#what-was-verified). The static app is published through GitHub Pages after automated checks.
 
 ## Run it
 
@@ -110,8 +112,9 @@ Run in this repository on the production build:
 - 81 unit tests (Vitest): all eight fixture cases and boundaries, draft parsing and validation, untrusted-object validation, file serialization and rejection, storage adapter behaviour, verified save/delete failures, malformed numeric inputs, precision round-trips, zero-rate capacity, positive future-plan requirements, and display formatting.
 - 14 browser scenarios × 2 projects (Playwright, Chromium desktop and Pixel 7 emulation): first screen, preset switching, editing and reset, invalid input recovery, the labour-cash bound, added-work cost, zero completions, the future plan (allocation after start month, contractor case with no spare capacity), reload persistence and removal of the saved copy, non-persistence of invalid drafts, real file download and re-import, rejection of invalid and malformed files with the scenario left untouched, imported text rendered as text, the calculation and month tables, arrow-key tab navigation, focusable chart months, Tab order and error association, and zero horizontal overflow.
 - Typecheck, production build, and the private-material scan over tracked files and `dist/`.
+- The live GitHub Pages page and its phone layout; direct browser checks of the three scenarios, edit/reload persistence, malformed number rejection, zero-rate capacity, positive plan-hour validation, and downloaded scenario re-import.
 
-Not verified: Firefox, Safari and WebKit; screen-reader behaviour beyond ARIA attributes and roles; the live GitHub Pages deployment (the workflow is prepared, not yet run); browsers with local storage disabled beyond the code path that reports it unavailable.
+Not verified: Firefox, Safari and WebKit; screen-reader behaviour beyond ARIA attributes and roles; browsers with local storage disabled beyond the code path that reports it unavailable.
 
 ## Privacy
 
