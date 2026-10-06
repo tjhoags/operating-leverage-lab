@@ -22,6 +22,29 @@ test('first screen shows the contractor example computed from the model', async 
   expect(overflow).toBe(0);
 });
 
+test('no form field is clipped by its card, with every group open', async ({ page }) => {
+  // The page-level overflow check above cannot see this: the form card and the
+  // body both hide horizontal overflow, so a field wider than its card is cut
+  // off rather than scrolled. Measure every field part against the card edge.
+  await page.locator('[id="futurePlan.enabled"]').evaluate((el) => {
+    (el.closest('details') as HTMLDetailsElement).open = true;
+  });
+  await page.locator('[id="futurePlan.enabled"]').check();
+  await page.evaluate(() => document.querySelectorAll('details.group').forEach((d) => ((d as HTMLDetailsElement).open = true)));
+  await expect(page.locator('[id="futurePlan.budgetPerMonth"]')).toBeVisible();
+  const clipped = await page.evaluate(() => {
+    const card = document.querySelector('.assumptions') as HTMLElement;
+    const edge = Math.min(card.getBoundingClientRect().right, document.documentElement.clientWidth) + 0.5;
+    const parts = card.querySelectorAll('.field, .field__label, .field__control, .field__unit, .field__help, input, select');
+    return [...parts]
+      .filter((el) => el.getBoundingClientRect().right > edge)
+      .map((el) => `${el.className || el.tagName} in #${el.closest('.field')?.querySelector('input, select')?.id ?? '?'}`);
+  });
+  expect(clipped).toEqual([]);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBe(0);
+});
+
 test('preset cards switch scenarios and show each example from the model', async ({ page }) => {
   await page.locator('[data-preset="fixed-payroll"]').click();
   await expect(cashFigure(page)).toHaveText('-$500');

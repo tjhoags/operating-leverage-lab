@@ -444,6 +444,10 @@ select {
 .group__body {
   padding: 4px 22px 18px;
   display: grid;
+  /* minmax(0, 1fr), not the implicit auto track: an auto track grows to the
+     min-content width of a field's nowrap unit label and pushes the field past
+     the card's right edge on 360-375px phones, where the card clips it. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -454,7 +458,9 @@ select {
 
 .field {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 5px;
+  min-width: 0;
 }
 
 .field__label {
@@ -468,6 +474,7 @@ select {
 .field__control {
   display: flex;
   align-items: stretch;
+  min-width: 0;
   border: 1px solid var(--border-2);
   border-radius: var(--radius);
   background: var(--surface);
@@ -488,6 +495,9 @@ select {
 .field__control select {
   flex: 1 1 auto;
   min-width: 0;
+  /* An input's intrinsic width (about 20 characters) is its flex basis, and on
+     a narrow phone that alone pushed the unit label out of the card. */
+  width: 0;
   border: 0;
   background: transparent;
   padding: 10px 12px;
@@ -515,6 +525,13 @@ select {
   background: var(--surface-quiet);
   border-left: 1px solid var(--border);
   white-space: nowrap;
+}
+
+/* Each unit is rendered in a long and a short form; only one is displayed, so
+   only one is read by assistive technology. The short form is used under
+   400px, where the long form leaves too little room for the number. */
+.field__unit-short {
+  display: none;
 }
 
 .field__help {
@@ -1267,7 +1284,7 @@ tr.total td.sticky {
 
 @media (max-width: 960px) {
   .workspace {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .hero {
     grid-template-columns: 1fr;
@@ -1332,5 +1349,21 @@ tr.total td.sticky {
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .field__unit {
+    padding: 0 10px;
+    max-width: 40%;
+    white-space: normal;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+  .field__unit-long {
+    display: none;
+  }
+  .field__unit-short {
+    display: inline;
   }
 }

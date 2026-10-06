@@ -23,7 +23,7 @@ Checks:
 
 ```bash
 npm test                  # unit tests: fixtures, validation, serialization, storage, formatting
-npm run test:e2e          # Playwright browser checks against the production build (desktop and phone)
+npm run test:e2e          # Playwright browser checks against the production build (desktop, 412px and 360px phone)
 npm run typecheck
 node scripts/scan-private.mjs   # scan tracked files and dist/ for secrets or private material
 ```
@@ -110,7 +110,7 @@ Mapping notes: contractor cases set the labour cash expense to billed hours time
 Run in this repository on the production build:
 
 - 81 unit tests (Vitest): all eight fixture cases and boundaries, draft parsing and validation, untrusted-object validation, file serialization and rejection, storage adapter behaviour, verified save/delete failures, malformed numeric inputs, precision round-trips, zero-rate capacity, positive future-plan requirements, and display formatting.
-- 14 browser scenarios × 2 projects (Playwright, Chromium desktop and Pixel 7 emulation): first screen, preset switching, editing and reset, invalid input recovery, the labour-cash bound, added-work cost, zero completions, the future plan (allocation after start month, contractor case with no spare capacity), reload persistence and removal of the saved copy, non-persistence of invalid drafts, real file download and re-import, rejection of invalid and malformed files with the scenario left untouched, imported text rendered as text, the calculation and month tables, arrow-key tab navigation, focusable chart months, Tab order and error association, and zero horizontal overflow.
+- 15 browser scenarios × 3 projects (Playwright, Chromium desktop, Pixel 7 emulation at 412px, and the same device at 360px): first screen, preset switching, editing and reset, invalid input recovery, the labour-cash bound, added-work cost, zero completions, the future plan (allocation after start month, contractor case with no spare capacity), reload persistence and removal of the saved copy, non-persistence of invalid drafts, real file download and re-import, rejection of invalid and malformed files with the scenario left untouched, imported text rendered as text, the calculation and month tables, arrow-key tab navigation, focusable chart months, Tab order and error association, zero horizontal overflow, and no form field clipped by its card with every group open. The 360px project was added on 2026-10-06 after the 412px phone check missed fields clipped at 360 and 375px; under 400px the unit labels use short forms (for example USD/mo, USD/h, %).
 - Typecheck, production build, and the private-material scan over tracked files and `dist/`.
 - The live GitHub Pages page and its phone layout; direct browser checks of the three scenarios, edit/reload persistence, malformed number rejection, zero-rate capacity, positive plan-hour validation, and downloaded scenario re-import.
 

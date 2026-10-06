@@ -34,6 +34,8 @@ interface FieldProps {
   id: string;
   label: string;
   unit?: string;
+  /** Compact form of the unit, shown instead of `unit` on screens under 400px wide. */
+  unitShort?: string;
   help?: ComponentChildren;
   error?: string;
   value: string;
@@ -41,7 +43,7 @@ interface FieldProps {
   inputMode?: 'decimal' | 'numeric' | 'text';
 }
 
-function Field({ id, label, unit, help, error, value, onInput, inputMode = 'decimal' }: FieldProps) {
+function Field({ id, label, unit, unitShort, help, error, value, onInput, inputMode = 'decimal' }: FieldProps) {
   const helpId = `${id}-help`;
   const errorId = `${id}-error`;
   const describedBy = [help ? helpId : '', error ? errorId : ''].filter(Boolean).join(' ') || undefined;
@@ -63,7 +65,15 @@ function Field({ id, label, unit, help, error, value, onInput, inputMode = 'deci
           aria-describedby={describedBy}
           onInput={(e) => onInput((e.currentTarget as HTMLInputElement).value)}
         />
-        {unit && <span class="field__unit">{unit}</span>}
+        {unit &&
+          (unitShort && unitShort !== unit ? (
+            <span class="field__unit">
+              <span class="field__unit-long">{unit}</span>
+              <span class="field__unit-short">{unitShort}</span>
+            </span>
+          ) : (
+            <span class="field__unit">{unit}</span>
+          ))}
       </div>
       {help && (
         <p class="field__help" id={helpId}>
@@ -207,6 +217,7 @@ export function AssumptionsForm(props: FormProps) {
           id="acceptedCompletionsPerMonth"
           label="Accepted completions"
           unit="per month"
+          unitShort="/mo"
           value={n.acceptedCompletionsPerMonth}
           error={errors.acceptedCompletionsPerMonth}
           onInput={(v) => onNumber('acceptedCompletionsPerMonth', v)}
@@ -216,6 +227,7 @@ export function AssumptionsForm(props: FormProps) {
           id="baselineMinutesPerCompletion"
           label="Human minutes per task, baseline"
           unit="minutes"
+          unitShort="min"
           value={n.baselineMinutesPerCompletion}
           error={errors.baselineMinutesPerCompletion}
           onInput={(v) => onNumber('baselineMinutesPerCompletion', v)}
@@ -225,6 +237,7 @@ export function AssumptionsForm(props: FormProps) {
           id="proposedMinutesPerCompletion"
           label="Human minutes per task, after"
           unit="minutes"
+          unitShort="min"
           value={n.proposedMinutesPerCompletion}
           error={errors.proposedMinutesPerCompletion}
           onInput={(v) => onNumber('proposedMinutesPerCompletion', v)}
@@ -251,6 +264,7 @@ export function AssumptionsForm(props: FormProps) {
           id="labourCashPerMonth"
           label="Current labour cash expense"
           unit={`${cur} per month`}
+          unitShort={`${cur}/mo`}
           value={n.labourCashPerMonth}
           error={errors.labourCashPerMonth}
           onInput={(v) => onNumber('labourCashPerMonth', v)}
@@ -260,6 +274,7 @@ export function AssumptionsForm(props: FormProps) {
           id="cashRatePerHour"
           label="Cash rate per changed hour"
           unit={`${cur} per hour`}
+          unitShort={`${cur}/h`}
           value={n.cashRatePerHour}
           error={errors.cashRatePerHour}
           onInput={(v) => onNumber('cashRatePerHour', v)}
@@ -269,6 +284,7 @@ export function AssumptionsForm(props: FormProps) {
           id="cashSensitiveShare"
           label="Cash-sensitive share of changed hours"
           unit="per cent"
+          unitShort="%"
           value={n.cashSensitiveShare}
           error={errors.cashSensitiveShare}
           onInput={(v) => onNumber('cashSensitiveShare', v)}
@@ -292,6 +308,7 @@ export function AssumptionsForm(props: FormProps) {
           id="fixedCashPerMonth"
           label="Fixed incremental cash cost"
           unit={`${cur} per month`}
+          unitShort={`${cur}/mo`}
           value={n.fixedCashPerMonth}
           error={errors.fixedCashPerMonth}
           onInput={(v) => onNumber('fixedCashPerMonth', v)}
@@ -301,6 +318,7 @@ export function AssumptionsForm(props: FormProps) {
           id="variableCashPerAttempt"
           label="Variable cash cost per attempt"
           unit={`${cur} per attempt`}
+          unitShort={`${cur}/attempt`}
           value={n.variableCashPerAttempt}
           error={errors.variableCashPerAttempt}
           onInput={(v) => onNumber('variableCashPerAttempt', v)}
@@ -379,6 +397,7 @@ export function AssumptionsForm(props: FormProps) {
           id="retainedMaintenanceHoursPerMonth"
           label="Maintenance time"
           unit="hours per month"
+          unitShort="h/mo"
           value={n.retainedMaintenanceHoursPerMonth}
           error={errors.retainedMaintenanceHoursPerMonth}
           onInput={(v) => onNumber('retainedMaintenanceHoursPerMonth', v)}
@@ -426,6 +445,7 @@ export function AssumptionsForm(props: FormProps) {
               id="futurePlan.hoursPerMonth"
               label="Hours the plan needs"
               unit="hours per month"
+              unitShort="h/mo"
               value={draft.futurePlan.numbers.hoursPerMonth}
               error={errors['futurePlan.hoursPerMonth']}
               onInput={(v) => onPlanNumber('hoursPerMonth', v)}
@@ -434,6 +454,7 @@ export function AssumptionsForm(props: FormProps) {
               id="futurePlan.budgetPerMonth"
               label="Budget the plan would cost"
               unit={`${cur} per month`}
+              unitShort={`${cur}/mo`}
               value={draft.futurePlan.numbers.budgetPerMonth}
               error={errors['futurePlan.budgetPerMonth']}
               onInput={(v) => onPlanNumber('budgetPerMonth', v)}

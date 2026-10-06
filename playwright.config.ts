@@ -20,5 +20,8 @@ export default defineConfig({
   projects: [
     { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'phone-chromium', use: { ...devices['Pixel 7'] } },
+    // 412px (Pixel 7) hid a clipped form on the 360px Android and 375px iPhone
+    // widths, so the narrowest common phone width is checked as well.
+    { name: 'phone-360-chromium', use: { ...devices['Pixel 7'], viewport: { width: 360, height: 780 } } },
   ],
 });
